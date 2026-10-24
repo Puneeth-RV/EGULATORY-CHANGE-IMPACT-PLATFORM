@@ -1,0 +1,7 @@
+Food Safety Compliance Direction, 2027
+
+Rule 4 Registration
+Every food operator shall maintain a digital register of ingredient suppliers and batch records. The operator shall submit the digital register by 30 June 2027.
+
+Rule 7 Inspection
+The digital register shall be produced to an authorised officer during inspection.

@@ -9,7 +9,7 @@ from pydantic import ValidationError
 from regimpact.analysis import analyze
 from regimpact.documents import extract_document, parse_clauses
 from regimpact.models import BusinessProfile
-from regimpact.store import get_report, recent_reports, save_report
+from regimpact.store import get_report, recent_reports, save_report, update_action_status, save_profile, list_profiles
 
 ROOT = Path(__file__).parents[1]
 SAMPLE_ROOT = ROOT / "sample_data"
@@ -31,8 +31,11 @@ def profile_from_json(raw: str) -> BusinessProfile:
 async def clauses_from_upload(upload: UploadFile):
     if not upload.filename or Path(upload.filename).suffix.lower() not in {".pdf", ".txt"}:
         raise HTTPException(422, detail="Upload a PDF or UTF-8 text document.")
+    data = await upload.read()
+    if len(data) > 10 * 1024 * 1024:
+        raise HTTPException(413, detail="Documents larger than 10 MB are not supported in this MVP.")
     try:
-        _, pages = extract_document(upload.filename, await upload.read())
+        _, pages = extract_document(upload.filename, data)
         clauses = parse_clauses(pages)
     except Exception as exc:
         raise HTTPException(422, detail=f"Could not read {upload.filename}: {exc}") from exc
@@ -58,12 +61,30 @@ async def create_analysis(profile: str = Form(...), earlier: UploadFile = File(.
 def list_reports():
     return recent_reports()
 
+@app.get("/api/profiles")
+def profiles():
+    return list_profiles()
+
+@app.post("/api/profiles")
+def create_profile(profile: BusinessProfile):
+    return {"id": save_profile(profile), "profile": profile}
+
 @app.get("/api/reports/{report_id}")
 def retrieve_report(report_id: int):
     report = get_report(report_id)
     if not report:
         raise HTTPException(404, detail="Report not found.")
     return report
+
+@app.patch("/api/actions/{action_id}")
+def set_action_status(action_id: int, payload: dict):
+    try:
+        action = update_action_status(action_id, payload.get("status", ""))
+    except ValueError as exc:
+        raise HTTPException(422, detail=str(exc)) from exc
+    if not action:
+        raise HTTPException(404, detail="Action not found.")
+    return action
 
 @app.get("/api/demos")
 def demos():

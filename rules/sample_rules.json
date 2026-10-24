@@ -1,0 +1,29 @@
+{
+  "notice": "These are clearly labelled synthetic rules for the checked-in demonstration documents only. They are not legal advice or real regulatory rules.",
+  "rules": [
+    {
+      "id": "demo-food-digital-register",
+      "source": "Food Safety Compliance Direction, 2027 (synthetic demo)",
+      "clause": "Rule 4",
+      "conditions": [{"attribute": "activities", "operator": "contains", "value": "food operator"}],
+      "outcome": "Applies",
+      "explanation": "The changed clause addresses food operators and the supplied activity confirms the business is a food operator."
+    },
+    {
+      "id": "demo-labour-worker-threshold",
+      "source": "State Employment Welfare Circular, 2027 (synthetic demo)",
+      "clause": "Section 3",
+      "conditions": [{"attribute": "employee_count", "operator": "gte", "value": 20}],
+      "outcome": "Applies",
+      "explanation": "The changed scope clause covers industrial establishments with 20 or more workers."
+    },
+    {
+      "id": "demo-marketplace-operator",
+      "source": "Marketplace Seller Disclosure Rules, 2027 (synthetic demo)",
+      "clause": "Clause 2",
+      "conditions": [{"attribute": "activities", "operator": "contains", "value": "marketplace operator"}],
+      "outcome": "Applies",
+      "explanation": "The changed scope clause covers marketplace operators."
+    }
+  ]
+}

@@ -8,6 +8,9 @@ def extract_pdf(data: bytes) -> tuple[str, list[tuple[int, str]]]:
     # was not installed correctly on a target platform.
     import fitz
     doc = fitz.open(stream=data, filetype="pdf")
+    if doc.needs_pass:
+        doc.close()
+        raise ValueError("This PDF is encrypted and cannot be read without its password.")
     pages = [(i + 1, page.get_text("text")) for i, page in enumerate(doc)]
     return "\n".join(t for _, t in pages), pages
 
@@ -15,6 +18,8 @@ def extract_document(filename: str, data: bytes) -> tuple[str, list[tuple[int, s
     if Path(filename).suffix.lower() == ".pdf":
         return extract_pdf(data)
     text = data.decode("utf-8", errors="replace")
+    if not text.strip():
+        raise ValueError("The text document is empty.")
     return text, [(1, text)]
 
 HEADING = re.compile(r"(?m)^\s*((?:section|rule|clause|para(?:graph)?|article)\s+[\dA-Za-z][\dA-Za-z.()/-]*|\d+(?:\.\d+){0,3}[.)]?)\s+(.+)$", re.I)

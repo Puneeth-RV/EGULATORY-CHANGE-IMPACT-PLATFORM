@@ -1,26 +1,47 @@
-# Regulatory Change Impact Platform
+# RegImpact — Regulatory Change Impact Platform
 
-An evidence-backed Streamlit MVP for Indian SMEs. Upload an earlier and updated regulatory document (PDF or text), enter a business profile, and receive deterministic clause-level changes, a profile-specific applicability signal, action items, deadlines, source evidence, and saved report history.
+An evidence-backed local web application for Indian SMEs. Compare regulatory documents, assess impact against a business profile, identify actions/deadlines, and retain a local report history.
 
-## Run locally
+## Run the judge demo
+
+Open two terminals from the repository root.
 
 ```bash
-python -m venv .venv
+# Terminal 1 — API
+python3.11 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env
-streamlit run app.py
+uvicorn backend.main:app --reload --port 8000
 ```
 
-Run checks with `pytest -q`.
+```bash
+# Terminal 2 — web app
+cd frontend
+npm install
+npm run dev
+```
 
-## Demo workflow
+Open the address printed by Vite (normally `http://localhost:5173`). The frontend proxies `/api` requests to FastAPI at port 8000.
 
-1. Enter the SME profile in the sidebar (try `food processing`, activity `food operator`).
-2. Upload two `.txt` or text-based PDF versions. Use headings such as `Rule 4 Registration` for the strongest clause matching.
-3. Click **Analyze change impact**. Inspect evidence expanders for original text and page references.
-4. Review action/deadline table and download the JSON report. Reports are persisted in `data/regimpact.db`.
+## Judge scenarios
 
-## AI and reliability
+Use the **Judge-ready demonstrations** cards in the web app. They use the checked-in paired source PDFs in `sample_data/`.
 
-The core workflow is deliberately deterministic and works without an API key. `GEMINI_API_KEY` is reserved for an optional interpretation layer; the application never relies on generative output to identify source evidence or make the workflow available. For production, add authenticated users, source-version hashing, OCR for scanned PDFs, legal-review queues, and a Gemini structured-output adapter validated against the included Pydantic models.
+| Scenario | Expected result |
+| --- | --- |
+| Food safety digital register | Likely applies |
+| Employment threshold update | Possibly applies |
+| Marketplace disclosure scope | Needs review |
+
+You can also upload any text-based PDF or `.txt` pair. The product retains clause/page evidence and saves the report locally in SQLite (`data/regimpact.db`).
+
+## Test
+
+```bash
+.venv/bin/python -m pytest -q
+cd frontend && npm test
+```
+
+## Design boundaries
+
+The visible workflow is deterministic and evidence-first; no AI toggle is shown. This is an operational aid, not legal advice. Scanned-PDF OCR, authentication, and hosted multi-user storage are intentionally out of scope for the hackathon MVP.

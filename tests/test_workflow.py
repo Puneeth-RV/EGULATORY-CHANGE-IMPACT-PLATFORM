@@ -12,7 +12,7 @@ def test_parser_preserves_identifier():
 def test_end_to_end_analysis_and_storage(tmp_path):
     profile = BusinessProfile(name="A", industry="food", activities="food operator")
     report = analyze(parse_clauses(OLD), parse_clauses(NEW), profile)
-    assert report.applicability == "Likely applies"
+    assert report.applicability == "Applies"
     assert len(report.changes) == 1
     assert report.actions[0].deadline.lower() == "by 30 june 2027"
     db = str(tmp_path / "test.db")

@@ -7,3 +7,5 @@ __pycache__/
 data/*.db
 uploads/
 *.pdf
+frontend/node_modules/
+frontend/dist/

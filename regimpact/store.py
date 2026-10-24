@@ -20,3 +20,10 @@ def recent_reports(path: str | None = None) -> list[dict]:
     con = connection(path)
     rows = con.execute("SELECT id, created_at, business_name, report_json FROM reports ORDER BY id DESC LIMIT 10").fetchall(); con.close()
     return [{"id": r[0], "created_at": r[1], "business_name": r[2], "report": json.loads(r[3])} for r in rows]
+
+def get_report(report_id: int, path: str | None = None) -> dict | None:
+    con = connection(path)
+    row = con.execute("SELECT id, created_at, business_name, report_json FROM reports WHERE id = ?", (report_id,)).fetchone(); con.close()
+    if not row:
+        return None
+    return {"id": row[0], "created_at": row[1], "business_name": row[2], "report": json.loads(row[3])}
